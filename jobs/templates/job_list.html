@@ -1,0 +1,503 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Jobs | JobPortal
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="modern-hero mb-5">
+
+    <div class="row align-items-center">
+
+        <div class="col-lg-7">
+
+            <span class="hero-badge">
+                Smarter Job Search
+            </span>
+
+            <h1 class="hero-title">
+                Find a job that fits your
+                <span>future.</span>
+            </h1>
+
+            <p class="hero-text">
+                Discover opportunities, apply faster and manage your
+                entire job journey from one place.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3 mt-4">
+
+                {% if not user.is_authenticated %}
+
+                    <a
+                        href="{% url 'signup' %}"
+                        class="btn btn-primary btn-lg px-4"
+                    >
+                        Get Started
+                    </a>
+
+                    <a
+                        href="#jobs"
+                        class="btn btn-light btn-lg px-4"
+                    >
+                        Browse Jobs
+                    </a>
+
+                {% elif user.role == 'seeker' %}
+
+                    <a
+                        href="#jobs"
+                        class="btn btn-primary btn-lg px-4"
+                    >
+                        Browse Jobs
+                    </a>
+
+                    <a
+                        href="{% url 'my-applications' %}"
+                        class="btn btn-light btn-lg px-4"
+                    >
+                        My Applications
+                    </a>
+
+                {% elif user.role == 'employer' %}
+
+                    <a
+                        href="{% url 'job-create' %}"
+                        class="btn btn-primary btn-lg px-4"
+                    >
+                        Post a Job
+                    </a>
+
+                    <a
+                        href="{% url 'employer-dashboard' %}"
+                        class="btn btn-light btn-lg px-4"
+                    >
+                        Dashboard
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-5 mt-5 mt-lg-0">
+
+            <div class="hero-card">
+
+                <div class="hero-card-icon">
+                    💼
+                </div>
+
+                <h4 class="fw-bold">
+                    Your next opportunity starts here.
+                </h4>
+
+                <p class="text-muted mb-4">
+                    Search roles by skill, company and location.
+                </p>
+
+                <div class="hero-stat">
+
+                    <div>
+                        <strong>
+                            {% if is_paginated %}
+                                {{ page_obj.paginator.count }}
+                            {% else %}
+                                {{ all_jobs|length }}
+                            {% endif %}
+                        </strong>
+
+                        <span>
+                            Open Jobs
+                        </span>
+                    </div>
+
+                    <div>
+                        <strong>2</strong>
+                        <span>User Types</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+<div id="jobs" class="mb-4">
+
+    <span class="text-primary fw-semibold small">
+        EXPLORE OPPORTUNITIES
+    </span>
+
+    <h2 class="fw-bold mt-1">
+        Find jobs made for you
+    </h2>
+
+    <p class="text-muted">
+        Search by keyword, company or location.
+    </p>
+
+</div>
+
+<!-- SEARCH SECTION -->
+<section class="card border-0 shadow-sm mb-5">
+
+    <div class="card-body p-4">
+
+        <div class="mb-3">
+
+            <h4 class="fw-bold mb-1">
+                Search Jobs
+            </h4>
+
+            <p class="text-muted mb-0">
+                Find jobs by title, company or location.
+            </p>
+
+        </div>
+
+        <form method="get">
+
+            <div class="row g-3">
+
+                <div class="col-lg-4">
+
+                    <label class="form-label small fw-semibold">
+                        Keyword
+                    </label>
+
+                    <input
+                        type="text"
+                        name="q"
+                        class="form-control"
+                        placeholder="Python, Django, Backend..."
+                        value="{{ request.GET.q }}"
+                    >
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <label class="form-label small fw-semibold">
+                        Company
+                    </label>
+
+                    <input
+                        type="text"
+                        name="company"
+                        class="form-control"
+                        placeholder="Company name"
+                        value="{{ request.GET.company }}"
+                    >
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <label class="form-label small fw-semibold">
+                        Location
+                    </label>
+
+                    <input
+                        type="text"
+                        name="location"
+                        class="form-control"
+                        placeholder="Kolkata, Remote..."
+                        value="{{ request.GET.location }}"
+                    >
+
+                </div>
+
+                <div class="col-lg-2 d-grid align-self-end">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Search
+                    </button>
+
+                </div>
+
+            </div>
+
+            {% if request.GET.q or request.GET.company or request.GET.location %}
+
+                <div class="mt-3">
+
+                    <a
+                        href="{% url 'job-list' %}"
+                        class="text-decoration-none small"
+                    >
+                        Clear all filters
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- JOB HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h3 class="fw-bold mb-1">
+            Available Jobs
+        </h3>
+
+        <p class="text-muted mb-0">
+            Explore current opportunities.
+        </p>
+
+    </div>
+
+    <span class="badge bg-light text-dark border px-3 py-2">
+
+        {% if is_paginated %}
+
+            {{ page_obj.paginator.count }}
+            job{{ page_obj.paginator.count|pluralize }}
+
+        {% else %}
+
+            {{ all_jobs|length }}
+            job{{ all_jobs|length|pluralize }}
+
+        {% endif %}
+
+    </span>
+
+</div>
+
+
+<!-- JOB CARDS -->
+<div class="row g-4">
+
+    {% for job in all_jobs %}
+
+        <div class="col-lg-6">
+
+            <div class="card job-card h-100 border-0 shadow-sm">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+
+                        <div>
+
+                            <h4 class="fw-bold mb-1">
+
+                                <a
+                                    href="{% url 'job-detail' job.pk %}"
+                                    class="text-decoration-none text-dark"
+                                >
+                                    {{ job.title }}
+                                </a>
+
+                            </h4>
+
+                            <p class="text-primary fw-semibold mb-0">
+                                {{ job.company_name }}
+                            </p>
+
+                        </div>
+
+                        <span class="badge bg-primary-subtle text-primary">
+                            New
+                        </span>
+
+                    </div>
+
+
+                    <p class="text-muted mb-4">
+                        {{ job.description|truncatechars:140 }}
+                    </p>
+
+
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+
+                        <span class="badge rounded-pill bg-light text-dark border">
+                             {{ job.location }}
+                        </span>
+
+                        <span class="badge rounded-pill bg-light text-dark border">
+                             ₹{{ job.salary }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+
+                        <div class="small text-muted">
+
+                            <div>
+                                Posted by {{ job.posted_by.username }}
+                            </div>
+
+                            <div>
+                                {{ job.date_posted|date:"d M Y" }}
+                            </div>
+
+                        </div>
+
+                        <a
+                            href="{% url 'job-detail' job.pk %}"
+                            class="btn btn-outline-primary"
+                        >
+                            View Details
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <div class="col-12">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body text-center py-5">
+
+                    
+
+                    <h4 class="fw-bold">
+                        No jobs found
+                    </h4>
+
+                    {% if request.GET.q or request.GET.company or request.GET.location %}
+
+                        <p class="text-muted">
+                            Try changing your search filters.
+                        </p>
+
+                        <a
+                            href="{% url 'job-list' %}"
+                            class="btn btn-primary"
+                        >
+                            View All Jobs
+                        </a>
+
+                    {% else %}
+
+                        <p class="text-muted">
+                            No jobs have been posted yet.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+
+<!-- PAGINATION -->
+{% if is_paginated %}
+
+    <nav class="mt-5">
+
+        <ul class="pagination justify-content-center flex-wrap">
+
+            {% if page_obj.has_previous %}
+
+                <li class="page-item">
+
+                    <a
+                        class="page-link"
+                        href="?page=1&q={{ request.GET.q|urlencode }}&company={{ request.GET.company|urlencode }}&location={{ request.GET.location|urlencode }}"
+                    >
+                        First
+                    </a>
+
+                </li>
+
+                <li class="page-item">
+
+                    <a
+                        class="page-link"
+                        href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q|urlencode }}&company={{ request.GET.company|urlencode }}&location={{ request.GET.location|urlencode }}"
+                    >
+                        Previous
+                    </a>
+
+                </li>
+
+            {% endif %}
+
+
+            <li class="page-item active">
+
+                <span class="page-link">
+                    {{ page_obj.number }}
+                </span>
+
+            </li>
+
+
+            {% if page_obj.has_next %}
+
+                <li class="page-item">
+
+                    <a
+                        class="page-link"
+                        href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q|urlencode }}&company={{ request.GET.company|urlencode }}&location={{ request.GET.location|urlencode }}"
+                    >
+                        Next
+                    </a>
+
+                </li>
+
+                <li class="page-item">
+
+                    <a
+                        class="page-link"
+                        href="?page={{ page_obj.paginator.num_pages }}&q={{ request.GET.q|urlencode }}&company={{ request.GET.company|urlencode }}&location={{ request.GET.location|urlencode }}"
+                    >
+                        Last
+                    </a>
+
+                </li>
+
+            {% endif %}
+
+        </ul>
+
+        <p class="text-center text-muted small">
+
+            Page
+            {{ page_obj.number }}
+            of
+            {{ page_obj.paginator.num_pages }}
+
+        </p>
+
+    </nav>
+
+{% endif %}
+
+{% endblock %}

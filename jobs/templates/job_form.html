@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+    {% if object %}
+        Edit Job
+    {% else %}
+        Post Job
+    {% endif %}
+
+    | JobPortal
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-7">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body p-4">
+
+                {% if object %}
+
+                    <h2 class="fw-bold">
+                        Edit Job
+                    </h2>
+
+                    <p class="text-muted">
+                        Update the job information below.
+                    </p>
+
+                {% else %}
+
+                    <h2 class="fw-bold">
+                        Post a New Job
+                    </h2>
+
+                    <p class="text-muted">
+                        Fill in the details to publish a new opportunity.
+                    </p>
+
+                {% endif %}
+
+                <hr>
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    {{ form.as_p }}
+
+                    <div class="d-flex gap-2 mt-4">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+
+                            {% if object %}
+                                Update Job
+                            {% else %}
+                                Post Job
+                            {% endif %}
+
+                        </button>
+
+                        <a
+                            href="{% url 'employer-dashboard' %}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

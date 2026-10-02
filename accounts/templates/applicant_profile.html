@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Applicant Profile | JobPortal
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-8">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-start mb-3">
+
+                    <div>
+
+                        <h2 class="fw-bold mb-1">
+
+                            {% if applicant.first_name or applicant.last_name %}
+                                {{ applicant.first_name }} {{ applicant.last_name }}
+                            {% else %}
+                                {{ applicant.username }}
+                            {% endif %}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            @{{ applicant.username }}
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="{% url 'employer-dashboard' %}"
+                        class="btn btn-outline-secondary btn-sm"
+                    >
+                        Back to Dashboard
+                    </a>
+
+                </div>
+
+                <hr>
+
+                <h5 class="fw-bold">
+                    Contact Information
+                </h5>
+
+                <p>
+                    <strong>Email:</strong>
+                    {{ applicant.email|default:"Not provided" }}
+                </p>
+
+                <p>
+                    <strong>Phone:</strong>
+                    {{ applicant.phone|default:"Not provided" }}
+                </p>
+
+                <hr>
+
+                <h5 class="fw-bold">
+                    Skills
+                </h5>
+
+                <p>
+                    {{ applicant.skills|default:"Not provided" }}
+                </p>
+
+                <hr>
+
+                <h5 class="fw-bold">
+                    Education
+                </h5>
+
+                <div class="text-muted">
+                    {{ applicant.education|default:"Not provided"|linebreaks }}
+                </div>
+
+                <hr>
+
+                <h5 class="fw-bold">
+                    Experience
+                </h5>
+
+                <div class="text-muted">
+                    {{ applicant.experience|default:"Not provided"|linebreaks }}
+                </div>
+
+                <hr>
+
+                <h5 class="fw-bold">
+                    About
+                </h5>
+
+                <div class="text-muted">
+                    {{ applicant.bio|default:"Not provided"|linebreaks }}
+                </div>
+
+                <hr>
+
+                <h5 class="fw-bold">
+                    Resume
+                </h5>
+
+                {% if applicant.resume %}
+
+                    <a
+                        href="{{ applicant.resume.url }}"
+                        target="_blank"
+                        class="btn btn-primary"
+                    >
+                        View Resume
+                    </a>
+
+                {% else %}
+
+                    <p class="text-muted">
+                        Resume not uploaded.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
