@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
+import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
@@ -27,7 +29,16 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv(
+    'ALLOWED_HOSTS',
+    '127.0.0.1,localhost'
+).split(',')
+
+render_hostname = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+
+if render_hostname:
+    ALLOWED_HOSTS.append(render_hostname)
+
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -49,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -81,12 +93,19 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=(
+            f"postgresql://"
+            f"{os.getenv('DB_USER')}:"
+            f"{os.getenv('DB_PASSWORD')}@"
+            f"{os.getenv('DB_HOST', '127.0.0.1')}:"
+            f"{os.getenv('DB_PORT', '5432')}/"
+            f"{os.getenv('DB_NAME')}"
+        ),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -105,6 +124,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+STORAGES = {
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
 
 
 # Internationalization
@@ -125,6 +151,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 LOGIN_REDIRECT_URL = 'job-list'
 LOGOUT_REDIRECT_URL = 'job-list'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
